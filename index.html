@@ -5,7 +5,7 @@
 <title>家务积分🧹</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-html { font-size: 22px; }
+html { font-size: 18px; } /* 整体字体更小 */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Microsoft YaHei", sans-serif;
   background: #f2f3f7;
@@ -18,70 +18,70 @@ body {
   margin: 0 auto;
 }
 
-h2 { text-align: center; font-size: 32px; margin-bottom: 16px; }
-h3 { font-size: 26px; margin-bottom: 10px; }
+h2 { text-align: center; font-size: 28px; margin-bottom: 14px; }
+h3 { font-size: 22px; margin-bottom: 8px; }
 
 .card {
   background: white;
-  padding: 28px;
-  border-radius: 28px;
-  margin-bottom: 18px;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.1);
-  line-height: 2;
+  padding: 22px;
+  border-radius: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+  line-height: 1.9;
   word-wrap: break-word;
 }
 
-.status { text-align: center; font-size: 18px; margin-top: 10px; opacity: 0.8; }
+.status { text-align: center; font-size: 16px; margin-top: 8px; opacity: 0.8; }
 
-#dateText, #currentUserText { font-size: 24px; line-height: 2.2; }
+#dateText, #currentUserText { font-size: 20px; line-height: 2; }
 
-.score-board { text-align: center; font-size: 28px; font-weight: bold; transition: all 0.3s ease; }
-@keyframes scoreJump { 0% { transform: scale(1); } 30% { transform: scale(1.2); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+.score-board { text-align: center; font-size: 22px; font-weight: bold; transition: all 0.3s ease; }
+@keyframes scoreJump { 0% { transform: scale(1); } 30% { transform: scale(1.15); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
 
-.task-grid { display: flex; flex-direction: column; gap: 12px; }
+.task-grid { display: flex; flex-direction: column; gap: 10px; }
 .task-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
 .task-button {
-  font-size: 18px; /* 缩小字体 */
-  padding: 14px; /* 缩小按钮高度 */
+  font-size: 16px; /* 缩小字体 */
+  padding: 12px; /* 缩小按钮高度 */
   background: linear-gradient(135deg, #c2e0ff, #e0f0ff);
   color: #004080;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
   border: none;
-  border-radius: 18px;
+  border-radius: 16px;
   cursor: pointer;
   flex: 1 1 auto;
-  min-width: 120px;
-  margin-bottom: 6px;
+  min-width: 100px;
+  margin-bottom: 4px;
   transition: all 0.15s ease;
 }
-.task-button:hover { transform: scale(1.05); }
+.task-button:hover { transform: scale(1.03); }
 .task-button:active { transform: scale(0.95); transition: transform 0.1s; }
 
-button { border: none; border-radius: 18px; padding: 14px 18px; margin: 6px 4px; font-size: 18px; cursor: pointer; transition: all 0.15s ease; }
+button { border: none; border-radius: 16px; padding: 10px 14px; margin: 4px 3px; font-size: 16px; cursor: pointer; transition: all 0.15s ease; }
 button:hover { transform: scale(1.05); }
 
 .primary { background: #ffcce0; color: #800040; }
 
-input { padding: 12px; font-size: 18px; width: 100%; margin: 10px 0; display: block; border-radius: 14px; border: 2px solid #ccc; box-sizing: border-box; }
+input { padding: 10px; font-size: 16px; width: 100%; margin: 8px 0; display: block; border-radius: 12px; border: 2px solid #ccc; box-sizing: border-box; }
 
 .record-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 20px;
+  margin-bottom: 8px;
+  font-size: 18px; /* 记录字体更小 */
   background: #f9f9f9;
-  border-radius: 14px;
-  padding: 12px 16px;
+  border-radius: 12px;
+  padding: 10px 14px;
   align-items: center;
   transition: background 0.2s;
 }
 .record-item:nth-child(even) { background: #f0f0f0; }
 .record-item button {
-  background: #ff6b6b; color: white; padding: 8px 12px; border-radius: 14px; font-size: 16px;
+  background: #ff6b6b; color: white; padding: 6px 10px; border-radius: 12px; font-size: 14px; /* 修改和删除按钮更小 */
 }
 .record-item button:hover { transform: scale(1.1); }
 
-ul { padding-left: 18px; font-size: 20px; }
+ul { padding-left: 16px; font-size: 18px; }
 
 @keyframes popupFade {
   0% { opacity: 0; transform: translateY(-20px); }
@@ -213,12 +213,14 @@ function renderTasks(){
     btn.onclick = ()=>{ addRecord(t[0], t[1]); };
     let editBtn = document.createElement("button");
     editBtn.innerText = "✏️";
+    editBtn.style.fontSize="14px"; editBtn.style.padding="4px 6px";
     editBtn.onclick = ()=>{
       let newScore = prompt(`修改【${t[0]}】分数:`, t[1]);
       if(newScore!==null){ let s=parseInt(newScore); if(!isNaN(s)){tasks[index][1]=s; saveAll(); renderTasks(); updateAll(); } }
     };
     let delBtn = document.createElement("button");
     delBtn.innerText = "🗑️";
+    delBtn.style.fontSize="14px"; delBtn.style.padding="4px 6px";
     delBtn.onclick = ()=>{ if(confirm(`确定删除任务【${t[0]}】吗？`)){ tasks.splice(index,1); saveAll(); renderTasks(); updateAll(); } };
     row.appendChild(btn); row.appendChild(editBtn); row.appendChild(delBtn);
     tasksDiv.appendChild(row);
@@ -266,7 +268,6 @@ async function init(){
   updateAll();
 }
 init();
-
 </script>
 </body>
 </html>
