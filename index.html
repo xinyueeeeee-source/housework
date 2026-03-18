@@ -251,8 +251,32 @@ function renderTasks(){
       let btn=document.createElement("button"); btn.className="task-button"; btn.innerText=t[0]+" +"+t[1];
       btn.onclick=()=>{ addRecord(t[0],t[1]); };
 
-      let editBtn=document.createElement("button"); editBtn.innerText="✏️";
-      editBtn.onclick=()=>{ let ns=prompt("新分数",t[1]); if(ns){tasks[cat][index][1]=parseInt(ns); saveToJSONBin(); renderTasks(); updateAll();} };
+      let editBtn = document.createElement("button");
+editBtn.innerText = "✏️";
+
+editBtn.onclick = () => {
+  // 修改任务名称
+  let newName = prompt("新任务名称", t[0]);
+  if (newName === null) return; // 点击取消直接退出
+
+  // 修改分数
+  let newScore = prompt("新分数", t[1]);
+  if (newScore === null) return;
+
+  newScore = parseInt(newScore);
+  if (isNaN(newScore)) {
+    alert("分数必须是数字");
+    return;
+  }
+
+  // 更新数据（名称允许为空则保留原值）
+  tasks[cat][index][0] = newName.trim() || t[0];
+  tasks[cat][index][1] = newScore;
+
+  saveToJSONBin();
+  renderTasks();
+  updateAll();
+};
 
       row.appendChild(btn); row.appendChild(editBtn);
       catDiv.appendChild(row);
