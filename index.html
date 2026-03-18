@@ -2,45 +2,82 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>家务积分 Pro+</title>
+<title>家务积分🧹</title>
 
 <style>
 body {
-  font-family: -apple-system, "Microsoft YaHei", sans-serif;
-  background:#f6f7f9;
-  padding:20px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Microsoft YaHei", sans-serif;
+  background: #f2f3f7;
+  padding: 16px;
+  max-width: 500px;
+  margin: auto;
 }
-.card {
-  background:white;
-  padding:16px;
-  border-radius:14px;
-  margin-bottom:16px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.05);
-}
-button {
-  margin:5px;
-  padding:8px 12px;
-  border-radius:8px;
-  border:none;
-  background:#eaeaea;
-  cursor:pointer;
-}
-.primary { background:#4a90e2; color:white; }
-.active { background:#4a90e2; color:white; }
-.task-grid { display:flex; flex-wrap:wrap; }
-.task-grid button { flex:1 0 30%; }
 
-/* 同步状态 */
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+h2 {
+  text-align: center;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  margin: 6px;
+  background: #f0f0f0;
+  font-size: 14px;
+}
+
+.primary {
+  background: #4a90e2;
+  color: white;
+}
+
+.active {
+  background: #4a90e2;
+  color: white;
+}
+
+.task-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.task-grid button {
+  flex: 1 0 45%;
+  font-size: 15px;
+}
+
+.score-board {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+}
+
 .status {
-  font-size:12px;
-  margin-top:5px;
+  text-align: center;
+  font-size: 12px;
+  margin-top: 5px;
+  opacity: 0.7;
+}
+
+.record-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🏠 家务积分 Pro+</h2>
+<h2>家务积分🧹</h2>
 
 <div class="card">
 📅 <span id="dateText"></span><br>
@@ -54,6 +91,12 @@ button {
   <button onclick="setUser('辛月')">辛月</button>
 </div>
 
+  <div class="card">
+  <div class="score-board" id="scoreBoard">
+    -- : --
+  </div>
+</div>
+  
 <div class="card">
   <div id="tasks" class="task-grid"></div>
 </div>
@@ -66,7 +109,7 @@ button {
 
 <div class="card">
   <h3>📜 记录</h3>
-  <ul id="records"></ul>
+  <div id="records"></div>
 </div>
 
 <div class="card">
@@ -287,16 +330,32 @@ function monthlySettlement(){
 
 // ===== UI =====
 function renderRecords(){
+  const recordsDiv = document.getElementById("records");
   recordsDiv.innerHTML="";
 
   records.slice().reverse().forEach((r,i)=>{
-    let li=document.createElement("li");
-    li.innerHTML=`${r.name} ${r.task} +${r.score}
-    <button onclick="delRecord(${records.length-1-i})">删</button>`;
-    recordsDiv.appendChild(li);
+    let div=document.createElement("div");
+    div.className="record-item";
+
+    div.innerHTML = `
+      <span>${r.name} ${r.task} +${r.score}</span>
+      <button onclick="delRecord(${records.length-1-i})">✕</button>
+    `;
+
+    recordsDiv.appendChild(div);
   });
 }
+  
+function renderScoreBoard(){
+  let scores = calcScores(currentMonth);
 
+  let a = scores["程大途"] || 0;
+  let b = scores["辛月"] || 0;
+
+  document.getElementById("scoreBoard").innerText =
+    `程大途 ${a}分  vs  辛月 ${b}分`;
+}
+  
 function renderRanking(){
   let scores = calcScores(currentMonth);
   checkReward(scores);
@@ -315,6 +374,7 @@ function renderRanking(){
 function updateAll(){
   renderRecords();
   renderRanking();
+  renderScoreBoard(); // ⭐ 新增
 }
 
 // ===== 初始化 =====
