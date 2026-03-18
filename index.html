@@ -5,6 +5,11 @@
 <title>家务积分🧹</title>
 
 <style>
+/* 根字体放大，整体放大 UI */
+html {
+  font-size: 22px;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Microsoft YaHei", sans-serif;
   background: #f2f3f7;
@@ -13,35 +18,95 @@ body {
   margin: auto;
 }
 
+/* 标题 */
 h2 {
   text-align: center;
-  font-size: 28px;
+  font-size: 32px;
   margin-bottom: 16px;
 }
 
 h3 {
-  font-size: 22px;
+  font-size: 26px;
   margin-bottom: 10px;
 }
 
 /* 卡片样式 */
 .card {
   background: white;
-  padding: 20px;
-  border-radius: 24px;
-  margin-bottom: 16px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-  line-height: 1.6;
+  padding: 28px;
+  border-radius: 28px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+  line-height: 2;
+}
+
+/* 状态显示 */
+.status {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 10px;
+  opacity: 0.8;
+}
+
+/* 顶部日期/月份/用户显示 */
+#dateText, #monthText, #currentUserText {
+  font-size: 26px;
+  line-height: 2.4;
+}
+
+/* 分数板 */
+.score-board {
+  text-align: center;
+  font-size: 32px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+/* 分数跳动动画 */
+@keyframes scoreJump {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* 任务网格 */
+.task-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.task-grid button {
+  flex: 1 0 45%;
+  font-size: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, #a3c7ff, #d0e4ff); /* 浅蓝 */
+  color: #004080;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  border: none;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.task-grid button:hover {
+  transform: scale(1.05);
+}
+
+/* 点击动画 */
+.task-grid button:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
 }
 
 /* 按钮 */
 button {
   border: none;
-  border-radius: 16px;
-  padding: 14px 18px;
+  border-radius: 18px;
+  padding: 16px 20px;
   margin: 6px 4px;
-  background: #f0f0f0;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -50,56 +115,32 @@ button:hover {
   transform: scale(1.05);
 }
 
+/* “添加任务”按钮淡粉色 */
 .primary {
-  background: #ff6b6b;
-  color: white;
+  background: #ffcce0;
+  color: #800040;
 }
 
-.active {
-  background: #4a90e2;
-  color: white;
-}
-
-/* 任务网格 */
-.task-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.task-grid button {
-  flex: 1 0 45%;
-  font-size: 17px;
-  padding: 12px;
-  background: linear-gradient(135deg, #d0e4ff);
-  color: #004080;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-}
-
-/* 分数板 */
-.score-board {
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-/* 状态显示 */
-.status {
-  text-align: center;
-  font-size: 14px;
-  margin-top: 6px;
-  opacity: 0.8;
+/* 输入框 */
+input {
+  padding: 14px;
+  font-size: 20px;
+  width: calc(100% - 32px);
+  margin: 10px auto;
+  display: block;
+  border-radius: 14px;
+  border: 2px solid #ccc;
 }
 
 /* 记录条目 */
 .record-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 16px;
+  margin-bottom: 10px;
+  font-size: 20px;
   background: #f9f9f9;
-  border-radius: 12px;
-  padding: 8px 12px;
+  border-radius: 14px;
+  padding: 12px 16px;
   align-items: center;
   transition: background 0.2s;
 }
@@ -111,40 +152,26 @@ button:hover {
 .record-item button {
   background: #ff6b6b;
   color: white;
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 16px;
 }
 
 .record-item button:hover {
   transform: scale(1.1);
 }
 
-/* 输入框 */
-input {
-  padding: 10px;
-  font-size: 16px;
-  margin: 8px auto;           /* 上下 8px，左右居中 */
-  border-radius: 10px;
-  border: 2px solid #ccc;
-  width: calc(100% - 24px);   /* 留出左右各12px空隙 */
-  display: block;              /* 保证 margin auto 生效 */
-}
-
 /* 列表 */
 ul {
   padding-left: 18px;
-  font-size: 16px;
+  font-size: 20px;
 }
 
-@media (max-width: 480px) {
-  body {
-    padding: 12px;
-  }
-
-  .task-grid button {
-    flex: 1 0 100%;
-  }
+/* 奖励弹窗动画 */
+@keyframes popupFade {
+  0% { opacity: 0; transform: translateY(-20px); }
+  50% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-20px); }
 }
 </style>
 </head>
@@ -153,38 +180,44 @@ ul {
 
 <h2>家务积分🧹</h2>
 
-<!-- 顶部信息卡片样式调整 -->
-<div class="card" style="line-height:2.0; font-size:18px;">
-📅 <span id="dateText" style="font-size:20px;"></span><br>
-📆 当前月份：<b id="monthText" style="font-size:20px;"></b><br>
-👤 当前用户：<b id="currentUserText" style="font-size:20px;">未选择</b><br>
-<div class="status" id="syncStatus" style="font-size:16px; margin-top:10px;">🟡 初始化中...</div>
+<!-- 顶部信息 -->
+<div class="card">
+📅 <span id="dateText"></span><br>
+📆 当前月份：<b id="monthText"></b><br>
+👤 当前用户：<b id="currentUserText">未选择</b><br>
+<div class="status" id="syncStatus">🟡 初始化中...</div>
 </div>
 
+<!-- 用户选择 -->
 <div class="card">
   <button onclick="setUser('程大途')">程大途</button>
   <button onclick="setUser('辛月')">辛月</button>
 </div>
 
+<!-- 分数板 -->
 <div class="card">
   <div class="score-board" id="scoreBoard">-- : --</div>
 </div>
 
+<!-- 家务任务 -->
 <div class="card">
   <div id="tasks" class="task-grid"></div>
 </div>
 
+<!-- 新增任务 -->
 <div class="card">
   <input id="newTask" placeholder="新任务">
   <input id="newScore" type="number" placeholder="分数">
   <button class="primary" onclick="addTask()">添加任务</button>
 </div>
 
+<!-- 记录 -->
 <div class="card">
   <h3>📜 记录</h3>
   <div id="records"></div>
 </div>
 
+<!-- 排行榜 -->
 <div class="card">
   <h3>🏆 本月排行榜</h3>
   <ul id="ranking"></ul>
@@ -201,6 +234,7 @@ const tasksDiv = document.getElementById("tasks");
 const recordsDiv = document.getElementById("records");
 const rankingDiv = document.getElementById("ranking");
 const syncStatus = document.getElementById("syncStatus");
+const scoreBoard = document.getElementById("scoreBoard");
 
 // ===== 工具 =====
 function formatDate(){
@@ -344,7 +378,11 @@ function addRecord(task,score){
   saveAll();
   updateAll();
 
-  // 奖励提示
+  // 分数板跳动动画
+  scoreBoard.style.animation = "scoreJump 0.5s";
+  setTimeout(()=>{ scoreBoard.style.animation=""; },500);
+
+  // 奖励弹窗
   let scores = calcScores(currentMonth);
   if(scores[currentUser] >= 100 && !rewardGiven[currentUser]){
     rewardGiven[currentUser] = true;
@@ -355,10 +393,11 @@ function addRecord(task,score){
     popup.style.left = "50%";
     popup.style.transform = "translateX(-50%)";
     popup.style.background = "#ffecb3";
-    popup.style.padding = "12px 24px";
-    popup.style.borderRadius = "16px";
-    popup.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
+    popup.style.padding = "14px 26px";
+    popup.style.borderRadius = "18px";
+    popup.style.boxShadow = "0 6px 18px rgba(0,0,0,0.2)";
     popup.style.zIndex = 999;
+    popup.style.animation = "popupFade 2s forwards";
     document.body.appendChild(popup);
     setTimeout(()=>popup.remove(),2000);
   }
@@ -428,8 +467,7 @@ function renderScoreBoard(){
   let aCrown = aScore > bScore ? " 👑" : "";
   let bCrown = bScore > aScore ? " 👑" : "";
 
-  document.getElementById("scoreBoard").innerText =
-    `程大途${aCrown} ${aScore}分  vs  辛月${bCrown} ${bScore}分`;
+  scoreBoard.innerText = `程大途${aCrown} ${aScore}分  vs  辛月${bCrown} ${bScore}分`;
 }
 
 function renderRanking(){
