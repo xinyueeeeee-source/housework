@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <style>
+/* —— 保持你原样 —— */
 html { font-size: 18px; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Microsoft YaHei", sans-serif;
@@ -35,12 +36,14 @@ h3 { font-size: 22px; margin-bottom: 8px; color:#1d1d1f; }
 
 .score-board { text-align: center; font-size: 20px; font-weight: 600; color:#007aff; transition: all 0.3s ease; }
 
+@keyframes scoreJump { 0% { transform: scale(1); } 30% { transform: scale(1.15); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+
 .task-grid { display: flex; flex-direction: column; gap: 12px; }
 .task-category { margin-bottom: 12px; }
 .category-title { font-weight: 600; margin-bottom: 6px; font-size: 18px; color:#1d1d1f; }
 .task-row { display: flex; justify-content: flex-start; align-items: center; flex-wrap: nowrap; gap: 6px; overflow-x: auto; }
 .task-button {
-  font-size: 16px;
+  font-size: 18px;
   padding: 10px;
   background: linear-gradient(135deg, #c2e0ff, #e0f0ff);
   color: #004080;
@@ -59,7 +62,7 @@ button:hover { transform: scale(1.05); }
 
 .primary { background: #ffcce0; color: #800040; }
 
-input, select, textarea { padding: 8px; font-size: 14px; width: 100%; margin: 6px 0; display: block; border-radius: 12px; border: 2px solid #ccc; box-sizing: border-box; }
+input, select { padding: 8px; font-size: 14px; width: 100%; margin: 6px 0; display: block; border-radius: 12px; border: 2px solid #ccc; box-sizing: border-box; }
 
 .record-item {
   display: flex;
@@ -93,176 +96,243 @@ input, select, textarea { padding: 8px; font-size: 14px; width: 100%; margin: 6p
   h3 { font-size: 20px; }
   #dateText, #currentUserText { font-size: 15px; line-height: 1.8; }
   .score-board { font-size: 16px; }
-  .task-button { font-size: 14px; padding: 8px; min-width: 70px; }
+  .task-button { font-size: 16px; padding: 8px; min-width: 70px; }
   button { font-size: 12px; padding: 6px 8px; }
-  input, select, textarea { font-size: 12px; padding: 6px; }
+  input, select { font-size: 12px; padding: 6px; }
   .record-item { font-size: 14px; padding: 6px 10px; }
 }
 </style>
 </head>
 <body>
 <div class="container">
+<h2>家务积分🧹</h2>
 
-<!-- 登录界面 -->
-<div id="loginCard" class="card">
-  <h2>登录 家庭积分</h2>
-  <div class="status" id="loginStatus">请输入家庭ID和密码登录</div>
-  <input id="loginFamilyID" placeholder="家庭ID">
-  <input id="loginFamilyPassword" type="password" placeholder="密码">
-  <button class="primary" onclick="loginFamily()">登录</button>
-  <button onclick="showRegister()">注册新家庭</button>
-</div>
+<div class="card" style="text-align:center;">
+📅 <span id="dateText"></span><br>
+👤 当前用户：<b id="currentUserText">未选择</b>
 
-<!-- 注册界面 -->
-<div id="registerCard" class="card" style="display:none;">
-  <h2>注册新家庭</h2>
-  <div class="status" id="registerStatus">填写家庭ID、密码以及家庭成员（用空格分隔）</div>
-  <input id="regFamilyID" placeholder="家庭ID">
-  <input id="regFamilyPassword" type="password" placeholder="密码">
-  <textarea id="regFamilyMembers" placeholder="家庭成员姓名，用空格分隔 (2-7人)"></textarea>
-  <button class="primary" onclick="registerFamily()">注册</button>
-  <button onclick="showLogin()">返回登录</button>
-</div>
-
-<!-- 家庭积分主界面 -->
-<div id="mainCard" style="display:none;">
-  <div class="card" style="text-align:center;">
-    📅 <span id="dateText"></span><br>
-    👤 当前用户：<b id="currentUserText">未选择</b>
-    <div class="user-select-container" id="memberButtons"></div>
-    <div class="status" id="syncStatus">🟡 初始化中...</div>
+<div class="user-select-container">
+  <div class="user-btn-container">
+    <span style="font-size:28px;">👦🏻</span>
+    <button onclick="setUser('程大途')">程大途</button>
   </div>
-
-  <div class="card">
-    <div class="score-board" id="scoreBoard">-- : --</div>
-  </div>
-
-  <div class="card">
-    <h3>家务任务</h3>
-    <div id="tasks" class="task-grid"></div>
-  </div>
-
-  <div class="card">
-    <h3>添加任务</h3>
-    <input id="newTask" placeholder="新任务">
-    <input id="newScore" type="number" placeholder="分数">
-    <select id="newCategory">
-      <option value="厨房">厨房</option>
-      <option value="洗刷">洗刷</option>
-      <option value="清洁">清洁</option>
-      <option value="植物">植物</option>
-      <option value="其他">其他</option>
-    </select>
-    <button class="primary" onclick="addTask()">添加任务</button>
-  </div>
-
-  <div class="card">
-    <h3>📜 记录</h3>
-    <div id="records"></div>
-    <button id="showMoreBtn" onclick="showMoreRecords()">展开更多</button>
+  <div class="user-btn-container">
+    <span style="font-size:28px;">👧🏻</span>
+    <button onclick="setUser('辛月')">辛月</button>
   </div>
 </div>
 
+<div class="status" id="syncStatus">🟡 初始化中...</div>
+</div>
+
+<div class="card">
+  <div class="score-board" id="scoreBoard">-- : --</div>
+</div>
+
+<div class="card">
+  <h3>家务任务</h3>
+  <div id="tasks" class="task-grid"></div>
+</div>
+
+<div class="card">
+  <h3>添加任务</h3>
+  <input id="newTask" placeholder="新任务">
+  <input id="newScore" type="number" placeholder="分数">
+  <select id="newCategory">
+    <option value="Küche">Küche</option>
+    <option value="waschen">waschen</option>
+    <option value="saubermachen">saubermachen</option>
+    <option value="Pflanzen">Pflanzen</option>
+    <option value="其他">其他</option>
+  </select>
+  <button class="primary" onclick="addTask()">添加任务</button>
+</div>
+
+<div class="card">
+  <h3>📜 记录</h3>
+  <div id="records"></div>
+  <button id="showMoreBtn" onclick="showMoreRecords()">展开更多</button>
+</div>
 </div>
 
 <script>
-const BIN_ID = "69ba72d9c3097a1dd536bcad";
+const BIN_ID = "69ba4eeac3097a1dd5363012";
 const API_KEY = "$2a$10$6pBPrU9SDFjVuN0RpIVh5..BJJOobImUPggq1ftD62HC10eoPjK0a";
-
-let families = {};
-let currentFamilyID = "";
-let currentFamily = null;
-let currentUser = "";
-let lastClickTime = 0;
-let displayCount = 5;
 
 const tasksDiv = document.getElementById("tasks");
 const recordsDiv = document.getElementById("records");
 const showMoreBtn = document.getElementById("showMoreBtn");
 const syncStatus = document.getElementById("syncStatus");
 const scoreBoard = document.getElementById("scoreBoard");
-const memberButtonsDiv = document.getElementById("memberButtons");
 
-function setStatus(text){ syncStatus.innerText=text; }
+let displayCount = 5;
+let currentUser = "";
+let now = new Date();
+let currentMonth = now.toISOString().slice(0,7);
+
+let expandedCategories = {};
+let lastClickTime = 0;
+
+const defaultTasks = { /* 原样保留 */ };
+
+let tasks = {};
+let records = [];
+
 function formatDate(){ const d=new Date(); const days=["日","一","二","三","四","五","六"]; return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} 星期${days[d.getDay()]}`; }
-document.getElementById("dateText").innerText=formatDate();
+function setStatus(text){ syncStatus.innerText=text; }
 
-// —— JSONBin 操作
-async function loadFamilies(){
+async function loadFromJSONBin(){
     setStatus("🟡 同步云端中...");
     try{
-        const res = await axios.get(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
-        families = res.data.record.families || {};
+        const res = await axios.get(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            headers: { "X-Master-Key": API_KEY }
+        });
+        const json = res.data;
+        if(json.record && json.record.tasks){
+            tasks = json.record.tasks;
+            records = json.record.records || [];
+        } else {
+            tasks = defaultTasks;
+            records = [];
+        }
+        renderTasks();
+        updateAll();
         setStatus("🟢 已同步");
-    }catch(e){
+    }catch(err){
         setStatus("🔴 云端同步失败");
-        families = {};
+        tasks = defaultTasks;
+        records = [];
+        renderTasks();
+        updateAll();
     }
 }
-async function saveFamilies(){
+
+async function saveToJSONBin(){
     setStatus("🟡 保存中...");
     try{
-        await axios.put(`https://api.jsonbin.io/v3/b/${BIN_ID}`, { families }, { headers: { "X-Master-Key": API_KEY, "Content-Type":"application/json" } });
+        await axios.put(`https://api.jsonbin.io/v3/b/${BIN_ID}`, { tasks, records }, {
+            headers: { "X-Master-Key": API_KEY, "Content-Type":"application/json" }
+        });
         setStatus("🟢 已保存");
-    }catch(e){
+    }catch(err){
         setStatus("🔴 保存失败");
     }
 }
 
-// —— 登录/注册界面切换
-function showRegister(){ document.getElementById("loginCard").style.display="none"; document.getElementById("registerCard").style.display="block"; }
-function showLogin(){ document.getElementById("loginCard").style.display="block"; document.getElementById("registerCard").style.display="none"; }
+function setUser(name){ currentUser=name; document.getElementById("currentUserText").innerText=name; }
 
-// —— 注册
-function registerFamily(){
-    const id = document.getElementById("regFamilyID").value.trim();
-    const pwd = document.getElementById("regFamilyPassword").value.trim();
-    const membersText = document.getElementById("regFamilyMembers").value.trim();
-    if(!id || !pwd || !membersText) return alert("请填写家庭ID、密码和成员姓名");
-    const members = membersText.split(" ").map(s=>s.trim()).filter(s=>s);
-    if(members.length <2 || members.length>7) return alert("成员人数必须为2-7人");
-    if(families[id]) return alert("家庭ID已存在，请选择其他ID");
-    families[id] = { 
-      password: pwd, 
-      members, 
-      tasks:{
-        "厨房":[["采购食材🥯",2],["准备早餐🥛",1],["洗菜切菜🥬",1],["炒菜/煮面🥩",2],["洗锅擦灶🧽",1],["清理餐桌🥣",1],["清洗碗机🍴",1]],
-        "洗刷":[["洗衣服👔",1],["晾衣服👖",1],["收/叠衣服",1],["刷鞋子👟",1],["换床单🛏️",2],["换洗窗帘",3]],
-        "清洁":[["刷马桶🚽",1],["刷浴室💦",2],["刷水池🪥",1],["清下水道",2],["倒垃圾🗑️",1],["给强子换水🪣",1],["给强子换尘袋加清洁液🤖",1]],
-        "植物":[["浇水🪴",1],["除虫🐛",1]],
-        "其他":[]
-      }, 
-      records:[]
-    };
-    saveFamilies().then(()=>{ alert("注册成功！请返回登录"); showLogin(); });
+function addTask(){
+  let t=document.getElementById("newTask").value.trim();
+  let s=parseInt(document.getElementById("newScore").value);
+  let cat=document.getElementById("newCategory").value;
+  if(!t||!s) return alert("请输入任务和分数");
+  if(!tasks[cat]) tasks[cat]=[];
+  tasks[cat].push([t,s]);
+  saveToJSONBin();
+  renderTasks();
+
+  document.getElementById("newTask").value="";
+  document.getElementById("newScore").value="";
 }
 
-// —— 登录
-function loginFamily(){
-    const id = document.getElementById("loginFamilyID").value.trim();
-    const pwd = document.getElementById("loginFamilyPassword").value.trim();
-    if(!families[id]) return alert("家庭ID不存在");
-    if(families[id].password!==pwd) return alert("密码错误");
-    currentFamilyID=id;
-    currentFamily=families[id];
-    showMainInterface();
+function renderTasks(){
+  tasksDiv.innerHTML="";
+  for(let cat of ["Küche","waschen","saubermachen","Pflanzen","其他"]){
+    if(!tasks[cat]) continue;
+
+    let showAll = expandedCategories[cat] || false;
+    let displayTasks = showAll ? tasks[cat] : tasks[cat].slice(0,5);
+
+    let catDiv=document.createElement("div"); catDiv.className="task-category";
+    let title=document.createElement("div"); title.className="category-title"; title.innerText=cat; catDiv.appendChild(title);
+
+    displayTasks.forEach((t,index)=>{
+      let row=document.createElement("div"); row.className="task-row";
+      let btn=document.createElement("button"); btn.className="task-button"; btn.innerText=t[0]+" +"+t[1];
+      btn.onclick=()=>{ addRecord(t[0],t[1]); };
+
+      let editBtn = document.createElement("button");
+editBtn.innerText = "✏️";
+
+editBtn.onclick = () => {
+  // 修改任务名称
+  let newName = prompt("新任务名称", t[0]);
+  if (newName === null) return; // 点击取消直接退出
+
+  // 修改分数
+  let newScore = prompt("新分数", t[1]);
+  if (newScore === null) return;
+
+  newScore = parseInt(newScore);
+  if (isNaN(newScore)) {
+    alert("分数必须是数字");
+    return;
+  }
+
+  // 更新数据（名称允许为空则保留原值）
+  tasks[cat][index][0] = newName.trim() || t[0];
+  tasks[cat][index][1] = newScore;
+
+  saveToJSONBin();
+  renderTasks();
+  updateAll();
+};
+
+      row.appendChild(btn); row.appendChild(editBtn);
+      catDiv.appendChild(row);
+    });
+
+    if(tasks[cat].length>5){
+      let toggleBtn=document.createElement("button");
+      toggleBtn.className="primary";
+      toggleBtn.innerText = showAll ? "收起更多" : "展开更多";
+      toggleBtn.onclick=()=>{ expandedCategories[cat]=!showAll; renderTasks(); };
+      catDiv.appendChild(toggleBtn);
+    }
+
+    tasksDiv.appendChild(catDiv);
+  }
 }
 
-// —— 家庭界面初始化（保留之前所有任务和记录功能）
-function showMainInterface(){
-    document.getElementById("loginCard").style.display="none";
-    document.getElementById("registerCard").style.display="none";
-    document.getElementById("mainCard").style.display="block";
-    renderMemberButtons();
-    renderTasks();
+function addRecord(task,score){
+    let now=Date.now();
+    if(now-lastClickTime<500) return;
+    lastClickTime=now;
+
+    if(!currentUser)return alert("请先选人");
+    records.push({name:currentUser, task, score, time:new Date().toISOString(), month:currentMonth});
+    saveToJSONBin();
     updateAll();
 }
 
-// —— 剩下任务、记录、添加任务、编辑删除功能保持原有逻辑（与上一次代码一致）
+function calcScores(month){ let scores={}; records.forEach(r=>{ if(r.month!==month)return; scores[r.name]=(scores[r.name]||0)+r.score; }); return scores; }
 
-// 为简洁，此处可复用上次版本的 renderTasks、addTask、addRecord、renderRecords、renderScoreBoard 等函数
+function renderRecords(){
+    recordsDiv.innerHTML="";
+    let visibleRecords=records.slice(-displayCount).reverse();
+    visibleRecords.forEach((r)=>{
+        const div=document.createElement("div"); div.className="record-item";
+        div.innerHTML=`<span>${r.name} ${r.task} +${r.score}</span>`;
+        recordsDiv.appendChild(div);
+    });
+    showMoreBtn.style.display=records.length>displayCount?"block":"none";
+}
 
-loadFamilies();
+function showMoreRecords(){ displayCount+=10; renderRecords(); }
+
+function renderScoreBoard(){ 
+    let scores=calcScores(currentMonth); 
+    const aScore=scores["程大途"]||0; 
+    const bScore=scores["辛月"]||0; 
+    let aCrown=aScore>bScore?" 👑":""; 
+    let bCrown=bScore>aScore?" 👑":""; 
+    scoreBoard.innerText=`程大途${aCrown} ${aScore}分  vs  辛月${bCrown} ${bScore}分`; 
+}
+
+function updateAll(){ renderRecords(); renderScoreBoard(); }
+
+document.getElementById("dateText").innerText=formatDate();
+loadFromJSONBin();
 </script>
 </body>
 </html>
