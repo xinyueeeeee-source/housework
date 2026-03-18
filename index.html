@@ -3,124 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <title>家务积分🧹</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <style>
-html { font-size: 18px; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Microsoft YaHei", sans-serif;
   background: #f2f3f7;
-  margin: 0;
   padding: 16px;
-  overflow-x: hidden;
+  max-width: 500px;
+  margin: auto;
 }
-.container { max-width: 500px; margin: 0 auto; }
 
-h2 { text-align: center; font-size: 28px; margin-bottom: 14px; }
-h3 { font-size: 22px; margin-bottom: 8px; }
+h2 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 16px;
+}
 
+h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+/* 卡片样式 */
 .card {
   background: white;
   padding: 20px;
   border-radius: 24px;
   margin-bottom: 16px;
-  box-shadow: 0 6px 22px rgba(0,0,0,0.08);
-  line-height: 1.8;
-  word-wrap: break-word;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  line-height: 1.6;
 }
 
-.status { text-align: center; font-size: 16px; margin-top: 8px; opacity: 0.8; }
-
-#dateText, #currentUserText { font-size: 18px; line-height: 1.8; text-align: center; display: block; }
-
-.score-board { text-align: center; font-size: 20px; font-weight: bold; white-space: nowrap; transition: all 0.3s ease; }
-
-@keyframes scoreJump { 0% { transform: scale(1); } 30% { transform: scale(1.15); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
-
-.task-grid { display: flex; flex-direction: column; gap: 12px; }
-.task-category { margin-bottom: 12px; }
-.category-title { font-weight: bold; margin-bottom: 6px; font-size: 18px; }
-.task-row { display: flex; justify-content: flex-start; align-items: center; flex-wrap: nowrap; gap: 6px; overflow-x: auto; }
-.task-button {
-  font-size: 14px;
-  padding: 10px;
-  background: linear-gradient(135deg, #c2e0ff, #e0f0ff);
-  color: #004080;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
-  border: none; border-radius: 14px;
+/* 按钮 */
+button {
+  border: none;
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin: 6px 4px;
+  background: #f0f0f0;
+  font-size: 16px;
   cursor: pointer;
-  flex-shrink: 0;
-  min-width: 90px;
   transition: all 0.15s ease;
 }
-.task-button:hover { transform: scale(1.03); }
-.task-button:active { transform: scale(0.95); transition: transform 0.1s; }
 
-button { border: none; border-radius: 16px; padding: 8px 12px; margin: 2px; font-size: 14px; cursor: pointer; transition: all 0.15s ease; }
-button:hover { transform: scale(1.05); }
+button:hover {
+  transform: scale(1.05);
+}
 
-.primary { background: #ffcce0; color: #800040; }
+.primary {
+  background: #ff6b6b;
+  color: white;
+}
 
-input, select { padding: 8px; font-size: 14px; width: 100%; margin: 6px 0; display: block; border-radius: 12px; border: 2px solid #ccc; box-sizing: border-box; }
+.active {
+  background: #4a90e2;
+  color: white;
+}
 
+/* 任务网格 */
+.task-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.task-grid button {
+  flex: 1 0 45%;
+  font-size: 17px;
+  padding: 12px;
+  background: linear-gradient(135deg, #d0e4ff);
+  color: #004080;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* 分数板 */
+.score-board {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* 状态显示 */
+.status {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 6px;
+  opacity: 0.8;
+}
+
+/* 记录条目 */
 .record-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-size: 16px;
   background: #f9f9f9;
   border-radius: 12px;
   padding: 8px 12px;
   align-items: center;
+  transition: background 0.2s;
 }
-.record-item:nth-child(even) { background: #f0f0f0; }
 
-.user-select-container {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  margin-top: 10px;
-  flex-wrap: wrap;
+.record-item:nth-child(even) {
+  background: #f0f0f0;
 }
-.user-btn-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
+
+.record-item button {
+  background: #ff6b6b;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.record-item button:hover {
+  transform: scale(1.1);
+}
+
+/* 输入框 */
+input {
+  padding: 10px;
+  font-size: 16px;
+  margin: 8px auto;           /* 上下 8px，左右居中 */
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  width: calc(100% - 24px);   /* 留出左右各12px空隙 */
+  display: block;              /* 保证 margin auto 生效 */
+}
+
+/* 列表 */
+ul {
+  padding-left: 18px;
+  font-size: 16px;
 }
 
 @media (max-width: 480px) {
-  html { font-size: 14px; }
-  h2 { font-size: 24px; }
-  h3 { font-size: 20px; }
-  #dateText, #currentUserText { font-size: 15px; line-height: 1.8; }
-  .score-board { font-size: 16px; }
-  .task-button { font-size: 12px; padding: 8px; min-width: 70px; }
-  button { font-size: 12px; padding: 6px 8px; }
-  input, select { font-size: 12px; padding: 6px; }
-  .record-item { font-size: 14px; padding: 6px 10px; }
+  body {
+    padding: 12px;
+  }
+
+  .task-grid button {
+    flex: 1 0 100%;
+  }
 }
 </style>
 </head>
+
 <body>
-<div class="container">
+
 <h2>家务积分🧹</h2>
 
-<div class="card" style="text-align:center;">
-📅 <span id="dateText"></span><br>
-👤 当前用户：<b id="currentUserText">未选择</b>
-
-<div class="user-select-container">
-  <div class="user-btn-container">
-    <span style="font-size:28px;">👦🏻</span>
-    <button onclick="setUser('程大途')">程大途</button>
-  </div>
-  <div class="user-btn-container">
-    <span style="font-size:28px;">👧🏻</span>
-    <button onclick="setUser('辛月')">辛月</button>
-  </div>
+<!-- 顶部信息卡片样式调整 -->
+<div class="card" style="line-height:2.0; font-size:18px;">
+📅 <span id="dateText" style="font-size:20px;"></span><br>
+📆 当前月份：<b id="monthText" style="font-size:20px;"></b><br>
+👤 当前用户：<b id="currentUserText" style="font-size:20px;">未选择</b><br>
+<div class="status" id="syncStatus" style="font-size:16px; margin-top:10px;">🟡 初始化中...</div>
 </div>
 
-<div class="status" id="syncStatus">🟡 初始化中...</div>
+<div class="card">
+  <button onclick="setUser('程大途')">程大途</button>
+  <button onclick="setUser('辛月')">辛月</button>
 </div>
 
 <div class="card">
@@ -128,181 +171,297 @@ input, select { padding: 8px; font-size: 14px; width: 100%; margin: 6px 0; displ
 </div>
 
 <div class="card">
-  <h3>家务任务</h3>
   <div id="tasks" class="task-grid"></div>
 </div>
 
 <div class="card">
-  <h3>添加任务</h3>
   <input id="newTask" placeholder="新任务">
   <input id="newScore" type="number" placeholder="分数">
-  <select id="newCategory">
-    <option value="Küche">Küche</option>
-    <option value="waschen">waschen</option>
-    <option value="saubermachen">saubermachen</option>
-    <option value="Robrock">Robrock</option>
-    <option value="Pflanzen">Pflanzen</option>
-    <option value="其他">其他</option>
-  </select>
   <button class="primary" onclick="addTask()">添加任务</button>
 </div>
 
 <div class="card">
   <h3>📜 记录</h3>
   <div id="records"></div>
-  <button id="showMoreBtn" onclick="showMoreRecords()">展开更多</button>
 </div>
+
+<div class="card">
+  <h3>🏆 本月排行榜</h3>
+  <ul id="ranking"></ul>
 </div>
 
 <script>
+// ===== 云配置 =====
+const BIN_ID = "69ba0b55c3097a1dd535429c";
+const API_KEY = "$2a$10$6pBPrU9SDFjVuN0RpIVh5..BJJOobImUPggq1ftD62HC10eoPjK0a";
+const BASE_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+// ===== DOM =====
 const tasksDiv = document.getElementById("tasks");
 const recordsDiv = document.getElementById("records");
-const showMoreBtn = document.getElementById("showMoreBtn");
+const rankingDiv = document.getElementById("ranking");
 const syncStatus = document.getElementById("syncStatus");
-const scoreBoard = document.getElementById("scoreBoard");
 
-let displayCount = 5;
+// ===== 工具 =====
+function formatDate(){
+  const d = new Date();
+  const days = ["日","一","二","三","四","五","六"];
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} 星期${days[d.getDay()]}`;
+}
+
+function setStatus(text){
+  syncStatus.innerText = text;
+}
+
+// ===== 数据 =====
 let currentUser = "";
 let now = new Date();
 let currentMonth = now.toISOString().slice(0,7);
 
-// 读取本地存储，如果没有则初始化默认六类
-let storedTasks = localStorage.getItem("tasks");
-let tasks = storedTasks ? JSON.parse(storedTasks) : {"Küche":[],"waschen":[],"saubermachen":[],"Robrock":[],"Pflanzen":[],"其他":[]};
-let records = JSON.parse(localStorage.getItem("records")||'[]');
-let rewardGiven = JSON.parse(localStorage.getItem("reward")||'{}');
-let lastSettlement = localStorage.getItem("lastSettlement")||"";
+let tasks = JSON.parse(localStorage.getItem("tasks")||`[
+["倒垃圾",1],["洗碗",1],["做饭",3],["拖地",2]
+]`);
 
-function formatDate(){ 
-  const d=new Date(); 
-  const days=["日","一","二","三","四","五","六"]; 
-  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} 星期${days[d.getDay()]}`; 
+let records = JSON.parse(localStorage.getItem("records")||`[]`);
+let rewardGiven = JSON.parse(localStorage.getItem("reward")||`{}`);
+let lastSettlement = localStorage.getItem("lastSettlement") || "";
+
+// ===== 云同步 =====
+let lastSyncTime = 0;
+
+async function syncToCloud(){
+  let nowTime = Date.now();
+  if(nowTime - lastSyncTime < 1000) return;
+
+  lastSyncTime = nowTime;
+  setStatus("🟡 同步中...");
+
+  try{
+    await fetch(BASE_URL, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Master-Key": API_KEY
+      },
+      body: JSON.stringify({tasks, records})
+    });
+
+    setStatus("🟢 已同步");
+
+  }catch(e){
+    console.log(e);
+    setStatus("🔴 同步失败");
+  }
 }
 
-function setStatus(text){ syncStatus.innerText=text; }
+async function loadFromCloud(){
+  setStatus("🟡 加载云数据...");
 
-function saveAll(){ 
-  localStorage.setItem("tasks",JSON.stringify(tasks)); 
-  localStorage.setItem("records",JSON.stringify(records)); 
-  localStorage.setItem("reward",JSON.stringify(rewardGiven)); 
-  localStorage.setItem("lastSettlement",lastSettlement); 
+  try{
+    let res = await fetch(BASE_URL, {
+      headers: {"X-Master-Key": API_KEY}
+    });
+
+    let data = await res.json();
+
+    if(data.record){
+      tasks = data.record.tasks || tasks;
+      records = data.record.records || records;
+    }
+
+    setStatus("🟢 云数据已加载");
+
+    renderTasks();
+    updateAll();
+
+  }catch(e){
+    console.log(e);
+    setStatus("🔴 云加载失败（使用本地数据）");
+  }
 }
 
-function setUser(name){ 
-  currentUser=name; 
-  document.getElementById("currentUserText").innerText=name; 
-  document.querySelectorAll(".user-btn-container button").forEach(b=>{
-    b.classList.remove("active"); 
+// ===== 保存 =====
+function saveAll(){
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  localStorage.setItem("records", JSON.stringify(records));
+  localStorage.setItem("reward", JSON.stringify(rewardGiven));
+  localStorage.setItem("lastSettlement", lastSettlement);
+
+  syncToCloud();
+}
+
+// ===== 用户 =====
+function setUser(name){
+  currentUser = name;
+  document.getElementById("currentUserText").innerText = name;
+
+  document.querySelectorAll("button").forEach(b=>{
+    b.classList.remove("active");
     if(b.innerText===name) b.classList.add("active");
-  }); 
+  });
 }
 
+// ===== 任务 =====
 function addTask(){
-  let t=document.getElementById("newTask").value.trim();
-  let s=parseInt(document.getElementById("newScore").value);
-  let cat=document.getElementById("newCategory").value;
-  if(!tasks[cat]) tasks[cat]=[];
-  if(!t||!s) return alert("请输入任务和分数");
-  tasks[cat].push([t,s]);
+  let t = document.getElementById("newTask").value.trim();
+  let s = parseInt(document.getElementById("newScore").value);
+
+  if(!t || !s) return alert("请输入任务");
+
+  tasks.push([t,s]);
   saveAll();
   renderTasks();
 }
 
+// ===== 渲染任务 =====
 function renderTasks(){
   tasksDiv.innerHTML="";
-  for(let cat of ["Küche","waschen","saubermachen","Robrock","Pflanzen","其他"]){
-    if(!tasks[cat]) continue;
-    let catDiv=document.createElement("div"); 
-    catDiv.className="task-category";
-    let title=document.createElement("div"); 
-    title.className="category-title"; 
-    title.innerText=cat; 
-    catDiv.appendChild(title);
 
-    let displayTasks = tasks[cat].slice(0,5);
-    displayTasks.forEach((t,index)=>{
-      let row=document.createElement("div"); 
-      row.className="task-row";
-      let btn=document.createElement("button"); 
-      btn.className="task-button"; 
-      btn.innerText=t[0]+" +"+t[1];
-      btn.onclick=()=>{ addRecord(t[0],t[1]); };
-      let editBtn=document.createElement("button"); 
-      editBtn.innerText="✏️"; 
-      editBtn.style.fontSize="12px"; 
-      editBtn.style.padding="3px 5px";
-      editBtn.onclick=()=>{ 
-        let newScore=prompt(`修改【${t[0]}】分数:`,t[1]); 
-        if(newScore!==null){ 
-          let s=parseInt(newScore); 
-          if(!isNaN(s)){tasks[cat][index][1]=s; saveAll(); renderTasks(); updateAll();}
-        } 
-      };
-      row.appendChild(btn); 
-      row.appendChild(editBtn);
-      catDiv.appendChild(row);
+  tasks.forEach(t=>{
+    let b=document.createElement("button");
+    b.innerText=t[0]+" +"+t[1];
+
+    b.addEventListener("click", function(){
+      addRecord(t[0], t[1]);
     });
 
-    tasksDiv.appendChild(catDiv);
+    tasksDiv.appendChild(b);
+  });
+}
+
+// ===== 记录 =====
+function addRecord(task,score){
+  if(!currentUser) return alert("请先选人");
+
+  records.push({
+    name:currentUser,
+    task,
+    score,
+    time:new Date().toISOString(),
+    month:currentMonth
+  });
+
+  saveAll();
+  updateAll();
+
+  // 奖励提示
+  let scores = calcScores(currentMonth);
+  if(scores[currentUser] >= 100 && !rewardGiven[currentUser]){
+    rewardGiven[currentUser] = true;
+    const popup = document.createElement("div");
+    popup.innerText = `${currentUser} 获得礼物 🎁`;
+    popup.style.position = "fixed";
+    popup.style.top = "20px";
+    popup.style.left = "50%";
+    popup.style.transform = "translateX(-50%)";
+    popup.style.background = "#ffecb3";
+    popup.style.padding = "12px 24px";
+    popup.style.borderRadius = "16px";
+    popup.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
+    popup.style.zIndex = 999;
+    document.body.appendChild(popup);
+    setTimeout(()=>popup.remove(),2000);
   }
 }
 
-function addRecord(task,score){
-  if(!currentUser) return alert("请先选人");
-  records.push({name:currentUser, task, score, time:new Date().toISOString(), month:currentMonth});
+function delRecord(i){
+  records.splice(i,1);
   saveAll();
   updateAll();
-  scoreBoard.style.animation="scoreJump 0.5s"; 
-  setTimeout(()=>{scoreBoard.style.animation="";},500);
 }
 
-function calcScores(month){ 
-  let scores={}; 
-  records.forEach(r=>{ if(r.month!==month)return; scores[r.name]=(scores[r.name]||0)+r.score; }); 
-  return scores; 
+// ===== 分数 =====
+function calcScores(month){
+  let scores={};
+  records.forEach(r=>{
+    if(r.month!==month) return;
+    scores[r.name]=(scores[r.name]||0)+r.score;
+  });
+  return scores;
 }
 
+// ===== 月结算 =====
+function monthlySettlement(){
+  if(now.getDate()!==1) return;
+  if(lastSettlement===currentMonth) return;
+
+  let lastMonthDate = new Date(now.getFullYear(), now.getMonth()-1, 1);
+  let lastMonth = lastMonthDate.toISOString().slice(0,7);
+
+  let lastScores = calcScores(lastMonth);
+
+  let diff = (lastScores["程大途"]||0) - (lastScores["辛月"]||0);
+  let carry = Math.round(diff/2);
+
+  if(carry!==0){
+    records.push({
+      name:"系统",
+      task:"上月结转",
+      score:carry,
+      time:new Date().toISOString(),
+      month:currentMonth
+    });
+  }
+
+  rewardGiven={};
+  lastSettlement=currentMonth;
+
+  saveAll();
+}
+
+// ===== UI =====
 function renderRecords(){
   recordsDiv.innerHTML="";
-  let visibleRecords=records.slice(-displayCount).reverse();
-  visibleRecords.forEach((r,i)=>{
-    const div=document.createElement("div"); 
-    div.className="record-item"; 
-    div.innerHTML=`<span>${r.name} ${r.task} +${r.score}</span>`;
-    const delBtn = document.createElement("button");
-    delBtn.innerText="🗑️";
-    delBtn.style.fontSize="12px";
-    delBtn.style.padding="2px 6px";
-    delBtn.onclick=()=>{
-      if(confirm("确认删除该记录吗？")){
-        let index = records.findIndex(rec=>rec===r);
-        if(index>-1) { records.splice(index,1); saveAll(); updateAll(); }
-      }
-    };
-    div.appendChild(delBtn);
+  records.slice().reverse().forEach((r,i)=>{
+    const div = document.createElement("div");
+    div.className = "record-item";
+    div.innerHTML = `<span>${r.name} ${r.task} +${r.score}</span><button onclick="delRecord(${records.length-1-i})">✕</button>`;
     recordsDiv.appendChild(div);
-  }); 
-  showMoreBtn.style.display=records.length>displayCount?"block":"none"; 
+  });
 }
 
-function showMoreRecords(){ displayCount+=10; renderRecords(); }
+function renderScoreBoard(){
+  let scores = calcScores(currentMonth);
+  const aScore = scores["程大途"] || 0;
+  const bScore = scores["辛月"] || 0;
 
-function renderScoreBoard(){ 
-  let scores=calcScores(currentMonth); 
-  const aScore=scores["程大途"]||0; 
-  const bScore=scores["辛月"]||0; 
-  let aCrown=aScore>bScore?" 👑":""; 
-  let bCrown=bScore>aScore?" 👑":""; 
-  scoreBoard.innerText=`程大途${aCrown} ${aScore}分  vs  辛月${bCrown} ${bScore}分`; 
+  let aCrown = aScore > bScore ? " 👑" : "";
+  let bCrown = bScore > aScore ? " 👑" : "";
+
+  document.getElementById("scoreBoard").innerText =
+    `程大途${aCrown} ${aScore}分  vs  辛月${bCrown} ${bScore}分`;
 }
 
-function updateAll(){ renderRecords(); renderScoreBoard(); }
+function renderRanking(){
+  let scores = calcScores(currentMonth);
+  rankingDiv.innerHTML="";
+  Object.entries(scores)
+    .sort((a,b)=>b[1]-a[1])
+    .forEach(([name,score])=>{
+      let li=document.createElement("li");
+      li.innerHTML=`<b>${name}</b>：${score} 分`;
+      rankingDiv.appendChild(li);
+    });
+}
 
-// 页面加载完成
-document.getElementById("dateText").innerText=formatDate();
-renderTasks(); 
-updateAll();
-setStatus("✅ 初始化完成");
+function updateAll(){
+  renderRecords();
+  renderRanking();
+  renderScoreBoard();
+}
+
+// ===== 初始化 =====
+async function init(){
+  document.getElementById("dateText").innerText = formatDate();
+  document.getElementById("monthText").innerText = currentMonth;
+  await loadFromCloud();
+  monthlySettlement();
+  renderTasks();
+  updateAll();
+}
+
+init();
 </script>
+
 </body>
 </html>
