@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <title>家务积分🧹</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <style>
 html { font-size: 18px; }
 body {
@@ -17,8 +16,8 @@ body {
 }
 .container { max-width: 500px; margin: 0 auto; }
 
-h2 { text-align: center; font-size: 28px; margin-bottom: 14px; }
-h3 { font-size: 22px; margin-bottom: 8px; }
+h2 { text-align: center; font-size: 28px; margin-bottom: 14px; color:#1d1d1f; }
+h3 { font-size: 22px; margin-bottom: 8px; color:#1d1d1f; }
 
 .card {
   background: white;
@@ -30,38 +29,32 @@ h3 { font-size: 22px; margin-bottom: 8px; }
   word-wrap: break-word;
 }
 
-.status { text-align: center; font-size: 16px; margin-top: 8px; opacity: 0.8; }
+.status { text-align: center; font-size: 16px; margin-top: 8px; opacity: 0.7; }
 
 #dateText, #currentUserText { font-size: 18px; line-height: 1.8; text-align: center; display: block; }
 
-.score-board { text-align: center; font-size: 20px; font-weight: bold; white-space: nowrap; transition: all 0.3s ease; }
+.score-board { text-align: center; font-size: 20px; font-weight: 600; color:#007aff; transition: all 0.3s ease; }
 
 @keyframes scoreJump { 0% { transform: scale(1); } 30% { transform: scale(1.15); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
 
 .task-grid { display: flex; flex-direction: column; gap: 12px; }
 .task-category { margin-bottom: 12px; }
-.category-title { font-weight: bold; margin-bottom: 6px; font-size: 18px; }
-.task-row { display: flex; justify-content: flex-start; align-items: center; flex-wrap: wrap; gap: 6px; }
+.category-title { font-weight: 600; margin-bottom: 6px; font-size: 18px; color:#1d1d1f; }
+.task-row { display: flex; justify-content: flex-start; align-items: center; flex-wrap: nowrap; gap: 6px; overflow-x: auto; }
 .task-button {
-  font-size: 16px;
+  font-size: 14px;
   padding: 10px;
+  background: linear-gradient(135deg, #c2e0ff, #e0f0ff);
   color: #004080;
   box-shadow: 0 3px 12px rgba(0,0,0,0.1);
   border: none; border-radius: 14px;
   cursor: pointer;
-  flex: 1 1 calc(50% - 6px);
+  flex-shrink: 0;
+  min-width: 90px;
   transition: all 0.15s ease;
-  min-width: calc(50% - 6px);
 }
 .task-button:hover { transform: scale(1.03); }
 .task-button:active { transform: scale(0.95); transition: transform 0.1s; }
-
-/* 分类颜色 */
-.task-button.kueche { background: #fffce6; }       /* 柔和淡黄 */
-.task-button.waschen { background: #e6f0ff; }      /* 淡蓝 */
-.task-button.saubermachen { background: #fff0f2; } /* 浅粉 */
-.task-button.pflanzen { background: #e6f9e6; }     /* 淡绿 */
-.task-button.其他 { background: #ffffff; }           /* 白色 */
 
 button { border: none; border-radius: 16px; padding: 8px 12px; margin: 2px; font-size: 14px; cursor: pointer; transition: all 0.15s ease; }
 button:hover { transform: scale(1.05); }
@@ -97,12 +90,12 @@ input, select { padding: 8px; font-size: 14px; width: 100%; margin: 6px 0; displ
 }
 
 @media (max-width: 480px) {
-  html { font-size: 16px; }
+  html { font-size: 14px; }
   h2 { font-size: 24px; }
   h3 { font-size: 20px; }
   #dateText, #currentUserText { font-size: 15px; line-height: 1.8; }
   .score-board { font-size: 16px; }
-  .task-button { font-size: 14px; padding: 8px; min-width: calc(50% - 6px); }
+  .task-button { font-size: 12px; padding: 8px; min-width: 70px; }
   button { font-size: 12px; padding: 6px 8px; }
   input, select { font-size: 12px; padding: 6px; }
   .record-item { font-size: 14px; padding: 6px 10px; }
@@ -141,6 +134,20 @@ input, select { padding: 8px; font-size: 14px; width: 100%; margin: 6px 0; displ
 </div>
 
 <div class="card">
+  <h3>添加任务</h3>
+  <input id="newTask" placeholder="新任务">
+  <input id="newScore" type="number" placeholder="分数">
+  <select id="newCategory">
+    <option value="Küche">Küche</option>
+    <option value="waschen">waschen</option>
+    <option value="saubermachen">saubermachen</option>
+    <option value="Pflanzen">Pflanzen</option>
+    <option value="其他">其他</option>
+  </select>
+  <button class="primary" onclick="addTask()">添加任务</button>
+</div>
+
+<div class="card">
   <h3>📜 记录</h3>
   <div id="records"></div>
   <button id="showMoreBtn" onclick="showMoreRecords()">展开更多</button>
@@ -148,6 +155,9 @@ input, select { padding: 8px; font-size: 14px; width: 100%; margin: 6px 0; displ
 </div>
 
 <script>
+const BIN_ID = "69ba4eeac3097a1dd5363012";
+const API_KEY = "$2a$10$6pBPrU9SDFjVuN0RpIVh5..BJJOobImUPggq1ftD62HC10eoPjK0a";
+
 const tasksDiv = document.getElementById("tasks");
 const recordsDiv = document.getElementById("records");
 const showMoreBtn = document.getElementById("showMoreBtn");
@@ -159,91 +169,82 @@ let currentUser = "";
 let now = new Date();
 let currentMonth = now.toISOString().slice(0,7);
 
+const defaultTasks = {
+  "Küche":[
+    ["采购食材🥯",2], ["准备早餐🥛",1], ["洗菜切菜🥬",1], ["炒菜/煮面🥩",2],
+    ["洗锅擦灶🧽",1], ["清理餐桌",1], ["清洗碗机",1]
+  ],
+  "waschen":[
+    ["洗衣服👔",1], ["晾衣服👖",1], ["收/叠衣服",1], ["刷鞋子👟",1],
+    ["换床单🛏️",2], ["换洗窗帘",3]
+  ],
+  "saubermachen":[
+    ["刷马桶🚽",1], ["刷浴室🛀",2], ["刷水池🪥",1], ["清下水道",2], ["倒垃圾🗑️",1]
+  ],
+  "Pflanzen":[
+    ["浇水💦",1], ["除虫🐛",1]
+  ],
+  "其他":[]
+};
+
 let tasks = {};
 let records = [];
 
-// JSON Bin 配置
-const binId = "69ba4807c3097a1dd536151c";
-const apiKey = "$2a$10$6pBPrU9SDFjVuN0RpIVh5..BJJOobImUPggq1ftD62HC10eoPjK0a";
-const binUrl = `https://api.jsonbin.io/v3/b/${binId}/latest`;
-
-async function fetchData(){
-  try{
-    const res = await fetch(binUrl,{headers:{'X-Master-Key':apiKey}});
-    const data = await res.json();
-    tasks = data.record.tasks || {};
-    records = data.record.records || [];
-    renderTasks(); updateAll();
-    setStatus("🟢 数据同步成功");
-  }catch(e){
-    setStatus("🔴 数据同步失败，使用默认任务");
-    initDefaultTasks();
-    renderTasks(); updateAll();
-  }
-}
-
-function initDefaultTasks(){
-  tasks = {
-    "Küche":[
-      ["采购食材🥯",2], ["准备早餐🥛",1], ["洗菜切菜🥬",1], ["炒菜/煮面🥩",2],
-      ["洗锅擦灶🧽",1], ["清理餐桌",1], ["清洗碗机",1]
-    ],
-    "waschen":[
-      ["洗衣服👔",1], ["晾衣服👖",1], ["收/叠衣服",1], ["刷鞋子👟",1],
-      ["换床单🛏️",2], ["换洗窗帘",3]
-    ],
-    "saubermachen":[
-      ["刷马桶🚽",1], ["刷浴室🛀",2], ["刷水池🪥",1], ["清下水道",2], ["倒垃圾🗑️",1]
-    ],
-    "Pflanzen":[
-      ["浇水💦",1], ["除虫🐛",1]
-    ],
-    "其他":[]
-  };
-  records = [];
-}
-
-// 辅助函数
 function formatDate(){ const d=new Date(); const days=["日","一","二","三","四","五","六"]; return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} 星期${days[d.getDay()]}`; }
 function setStatus(text){ syncStatus.innerText=text; }
 
-function setUser(name){ currentUser=name; document.getElementById("currentUserText").innerText=name; document.querySelectorAll(".user-select-container button").forEach(b=>b.classList.remove("active")); }
-
-function addRecord(task,score){
-  if(!currentUser) return alert("请先选用户");
-  records.push({name:currentUser, task, score, time:new Date().toISOString(), month:currentMonth});
-  updateAll();
+async function loadFromJSONBin(){
+    setStatus("🟡 同步云端中...");
+    try{
+        const res = await axios.get(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            headers: { "X-Master-Key": API_KEY }
+        });
+        const json = res.data;
+        if(json.record && json.record.tasks && Object.keys(json.record.tasks).length>0){
+            tasks = json.record.tasks;
+            records = json.record.records || [];
+        } else {
+            tasks = defaultTasks;
+            records = [];
+            await saveToJSONBin(); // 保存默认任务到云端
+        }
+        renderTasks();
+        updateAll();
+        setStatus("🟢 已同步");
+    }catch(err){
+        console.error(err);
+        setStatus("🔴 云端同步失败");
+        tasks = defaultTasks;
+        records = [];
+        renderTasks();
+        updateAll();
+    }
 }
 
-function calcScores(month){
-  let scores={};
-  records.forEach(r=>{ if(r.month!==month)return; scores[r.name]=(scores[r.name]||0)+r.score; });
-  return scores;
+async function saveToJSONBin(){
+    try{
+        await axios.put(`https://api.jsonbin.io/v3/b/${BIN_ID}`, { tasks, records }, {
+            headers: { "X-Master-Key": API_KEY, "Content-Type":"application/json" }
+        });
+        setStatus("🟢 已保存到云端");
+    }catch(err){
+        console.error(err);
+        setStatus("🔴 保存失败");
+    }
 }
 
-function renderScoreBoard(){
-  let scores=calcScores(currentMonth);
-  const aScore=scores["程大途"]||0;
-  const bScore=scores["辛月"]||0;
-  let aCrown=aScore>bScore?" 👑":""; let bCrown=bScore>aScore?" 👑":""; 
-  scoreBoard.innerText=`程大途${aCrown} ${aScore}分  vs  辛月${bCrown} ${bScore}分`;
-}
+function setUser(name){ currentUser=name; document.getElementById("currentUserText").innerText=name; document.querySelectorAll("button").forEach(b=>{b.classList.remove("active"); if(b.innerText===name)b.classList.add("active");}); }
 
-function renderRecords(){
-  recordsDiv.innerHTML="";
-  let visibleRecords=records.slice(-displayCount).reverse();
-  visibleRecords.forEach((r,i)=>{
-    const div=document.createElement("div"); div.className="record-item";
-    const delBtn = document.createElement("button"); delBtn.innerText="❌"; delBtn.style.fontSize="12px";
-    delBtn.onclick = ()=>{ records.splice(records.indexOf(r),1); renderRecords(); renderScoreBoard(); };
-    div.innerHTML=`<span>${r.name} ${r.task} +${r.score}</span>`;
-    div.appendChild(delBtn);
-    recordsDiv.appendChild(div);
-  });
-  showMoreBtn.style.display=records.length>displayCount?"block":"none";
+function addTask(){
+  let t=document.getElementById("newTask").value.trim();
+  let s=parseInt(document.getElementById("newScore").value);
+  let cat=document.getElementById("newCategory").value;
+  if(!t||!s) return alert("请输入任务和分数");
+  if(!tasks[cat]) tasks[cat]=[];
+  tasks[cat].push([t,s]);
+  saveToJSONBin();
+  renderTasks();
 }
-
-function showMoreRecords(){ displayCount+=10; renderRecords(); }
 
 function renderTasks(){
   tasksDiv.innerHTML="";
@@ -256,13 +257,10 @@ function renderTasks(){
     displayTasks.forEach((t,index)=>{
       let row=document.createElement("div"); row.className="task-row";
       let btn=document.createElement("button"); btn.className="task-button"; btn.innerText=t[0]+" +"+t[1];
-      if(cat==="Küche") btn.classList.add("kueche");
-      else if(cat==="waschen") btn.classList.add("waschen");
-      else if(cat==="saubermachen") btn.classList.add("saubermachen");
-      else if(cat==="Pflanzen") btn.classList.add("pflanzen");
-      else btn.classList.add("其他");
       btn.onclick=()=>{ addRecord(t[0],t[1]); };
-      row.appendChild(btn);
+      let editBtn=document.createElement("button"); editBtn.innerText="✏️"; editBtn.style.fontSize="12px"; editBtn.style.padding="3px 5px";
+      editBtn.onclick=()=>{ let newScore=prompt(`修改【${t[0]}】分数:`,t[1]); if(newScore!==null){ let s=parseInt(newScore); if(!isNaN(s)){tasks[cat][index][1]=s; saveToJSONBin(); renderTasks(); updateAll();} } };
+      row.appendChild(btn); row.appendChild(editBtn);
       catDiv.appendChild(row);
     });
 
@@ -270,11 +268,53 @@ function renderTasks(){
   }
 }
 
+function addRecord(task,score){
+    if(!currentUser)return alert("请先选人");
+    records.push({name:currentUser, task, score, time:new Date().toISOString(), month:currentMonth});
+    saveToJSONBin();
+    updateAll();
+    scoreBoard.style.animation="scoreJump 0.5s"; setTimeout(()=>{scoreBoard.style.animation="";},500);
+}
+
+function deleteRecord(index){
+    if(confirm("确定删除这条记录吗？")){
+        records.splice(index,1);
+        saveToJSONBin();
+        updateAll();
+    }
+}
+
+function calcScores(month){ let scores={}; records.forEach(r=>{ if(r.month!==month)return; scores[r.name]=(scores[r.name]||0)+r.score; }); return scores; }
+
+function renderRecords(){
+    recordsDiv.innerHTML="";
+    let visibleRecords=records.slice(-displayCount).reverse();
+    visibleRecords.forEach((r,i)=>{
+        const div=document.createElement("div"); div.className="record-item";
+        const delBtn = document.createElement("button");
+        delBtn.innerText="🗑️"; delBtn.style.fontSize="14px"; delBtn.onclick=()=>{ deleteRecord(records.length-visibleRecords.length+i); };
+        div.innerHTML=`<span>${r.name} ${r.task} +${r.score}</span>`;
+        div.appendChild(delBtn);
+        recordsDiv.appendChild(div);
+    });
+    showMoreBtn.style.display=records.length>displayCount?"block":"none";
+}
+
+function showMoreRecords(){ displayCount+=10; renderRecords(); }
+
+function renderScoreBoard(){ 
+    let scores=calcScores(currentMonth); 
+    const aScore=scores["程大途"]||0; 
+    const bScore=scores["辛月"]||0; 
+    let aCrown=aScore>bScore?" 👑":""; 
+    let bCrown=bScore>aScore?" 👑":""; 
+    scoreBoard.innerText=`程大途${aCrown} ${aScore}分  vs  辛月${bCrown} ${bScore}分`; 
+}
+
+function updateAll(){ renderRecords(); renderScoreBoard(); }
+
 document.getElementById("dateText").innerText=formatDate();
-fetchData();
-renderTasks();
-renderRecords();
-renderScoreBoard();
+loadFromJSONBin();
 </script>
 </body>
 </html>
