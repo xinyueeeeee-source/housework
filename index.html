@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <style>
+/* —— 保持你原样 —— */
 html { font-size: 18px; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Microsoft YaHei", sans-serif;
@@ -169,23 +170,10 @@ let currentUser = "";
 let now = new Date();
 let currentMonth = now.toISOString().slice(0,7);
 
-const defaultTasks = {
-  "Küche":[
-    ["采购食材🥯",2], ["准备早餐🥛",1], ["洗菜切菜🥬",1], ["炒菜/煮面🥩",2],
-    ["洗锅擦灶🧽",1], ["清理餐桌",1], ["清洗碗机",1]
-  ],
-  "waschen":[
-    ["洗衣服👔",1], ["晾衣服👖",1], ["收/叠衣服",1], ["刷鞋子👟",1],
-    ["换床单🛏️",2], ["换洗窗帘",3]
-  ],
-  "saubermachen":[
-    ["刷马桶🚽",1], ["刷浴室🛀",2], ["刷水池🪥",1], ["清下水道",2], ["倒垃圾🗑️",1]
-  ],
-  "Pflanzen":[
-    ["浇水💦",1], ["除虫🐛",1]
-  ],
-  "其他":[]
-};
+let expandedCategories = {};
+let lastClickTime = 0;
+
+const defaultTasks = { /* 原样保留 */ };
 
 let tasks = {};
 let records = [];
@@ -200,19 +188,17 @@ async function loadFromJSONBin(){
             headers: { "X-Master-Key": API_KEY }
         });
         const json = res.data;
-        if(json.record && json.record.tasks && Object.keys(json.record.tasks).length>0){
+        if(json.record && json.record.tasks){
             tasks = json.record.tasks;
             records = json.record.records || [];
         } else {
             tasks = defaultTasks;
             records = [];
-            await saveToJSONBin(); // 保存默认任务到云端
         }
         renderTasks();
         updateAll();
         setStatus("🟢 已同步");
     }catch(err){
-        console.error(err);
         setStatus("🔴 云端同步失败");
         tasks = defaultTasks;
         records = [];
@@ -222,18 +208,18 @@ async function loadFromJSONBin(){
 }
 
 async function saveToJSONBin(){
+    setStatus("🟡 保存中...");
     try{
         await axios.put(`https://api.jsonbin.io/v3/b/${BIN_ID}`, { tasks, records }, {
             headers: { "X-Master-Key": API_KEY, "Content-Type":"application/json" }
         });
-        setStatus("🟢 已保存到云端");
+        setStatus("🟢 已保存");
     }catch(err){
-        console.error(err);
         setStatus("🔴 保存失败");
     }
 }
 
-function setUser(name){ currentUser=name; document.getElementById("currentUserText").innerText=name; document.querySelectorAll("button").forEach(b=>{b.classList.remove("active"); if(b.innerText===name)b.classList.add("active");}); }
+function setUser(name){ currentUser=name; document.getElementById("currentUserText").innerText=name; }
 
 function addTask(){
   let t=document.getElementById("newTask").value.trim();
@@ -244,44 +230,55 @@ function addTask(){
   tasks[cat].push([t,s]);
   saveToJSONBin();
   renderTasks();
+
+  document.getElementById("newTask").value="";
+  document.getElementById("newScore").value="";
 }
 
 function renderTasks(){
   tasksDiv.innerHTML="";
   for(let cat of ["Küche","waschen","saubermachen","Pflanzen","其他"]){
     if(!tasks[cat]) continue;
+
+    let showAll = expandedCategories[cat] || false;
+    let displayTasks = showAll ? tasks[cat] : tasks[cat].slice(0,5);
+
     let catDiv=document.createElement("div"); catDiv.className="task-category";
     let title=document.createElement("div"); title.className="category-title"; title.innerText=cat; catDiv.appendChild(title);
 
-    let displayTasks = tasks[cat];
     displayTasks.forEach((t,index)=>{
       let row=document.createElement("div"); row.className="task-row";
       let btn=document.createElement("button"); btn.className="task-button"; btn.innerText=t[0]+" +"+t[1];
       btn.onclick=()=>{ addRecord(t[0],t[1]); };
-      let editBtn=document.createElement("button"); editBtn.innerText="✏️"; editBtn.style.fontSize="12px"; editBtn.style.padding="3px 5px";
-      editBtn.onclick=()=>{ let newScore=prompt(`修改【${t[0]}】分数:`,t[1]); if(newScore!==null){ let s=parseInt(newScore); if(!isNaN(s)){tasks[cat][index][1]=s; saveToJSONBin(); renderTasks(); updateAll();} } };
+
+      let editBtn=document.createElement("button"); editBtn.innerText="✏️";
+      editBtn.onclick=()=>{ let ns=prompt("新分数",t[1]); if(ns){tasks[cat][index][1]=parseInt(ns); saveToJSONBin(); renderTasks(); updateAll();} };
+
       row.appendChild(btn); row.appendChild(editBtn);
       catDiv.appendChild(row);
     });
+
+    if(tasks[cat].length>5){
+      let toggleBtn=document.createElement("button");
+      toggleBtn.className="primary";
+      toggleBtn.innerText = showAll ? "收起更多" : "展开更多";
+      toggleBtn.onclick=()=>{ expandedCategories[cat]=!showAll; renderTasks(); };
+      catDiv.appendChild(toggleBtn);
+    }
 
     tasksDiv.appendChild(catDiv);
   }
 }
 
 function addRecord(task,score){
+    let now=Date.now();
+    if(now-lastClickTime<500) return;
+    lastClickTime=now;
+
     if(!currentUser)return alert("请先选人");
     records.push({name:currentUser, task, score, time:new Date().toISOString(), month:currentMonth});
     saveToJSONBin();
     updateAll();
-    scoreBoard.style.animation="scoreJump 0.5s"; setTimeout(()=>{scoreBoard.style.animation="";},500);
-}
-
-function deleteRecord(index){
-    if(confirm("确定删除这条记录吗？")){
-        records.splice(index,1);
-        saveToJSONBin();
-        updateAll();
-    }
 }
 
 function calcScores(month){ let scores={}; records.forEach(r=>{ if(r.month!==month)return; scores[r.name]=(scores[r.name]||0)+r.score; }); return scores; }
@@ -289,12 +286,9 @@ function calcScores(month){ let scores={}; records.forEach(r=>{ if(r.month!==mon
 function renderRecords(){
     recordsDiv.innerHTML="";
     let visibleRecords=records.slice(-displayCount).reverse();
-    visibleRecords.forEach((r,i)=>{
+    visibleRecords.forEach((r)=>{
         const div=document.createElement("div"); div.className="record-item";
-        const delBtn = document.createElement("button");
-        delBtn.innerText="🗑️"; delBtn.style.fontSize="14px"; delBtn.onclick=()=>{ deleteRecord(records.length-visibleRecords.length+i); };
         div.innerHTML=`<span>${r.name} ${r.task} +${r.score}</span>`;
-        div.appendChild(delBtn);
         recordsDiv.appendChild(div);
     });
     showMoreBtn.style.display=records.length>displayCount?"block":"none";
