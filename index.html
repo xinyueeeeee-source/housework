@@ -5,7 +5,7 @@
 <title>家务积分🧹</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-html { font-size: 18px; } /* 整体字体更小 */
+html { font-size: 18px; } /* 电脑端默认字体 */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Microsoft YaHei", sans-serif;
   background: #f2f3f7;
@@ -13,10 +13,7 @@ body {
   padding: 16px;
   overflow-x: hidden;
 }
-.container {
-  max-width: 500px;
-  margin: 0 auto;
-}
+.container { max-width: 500px; margin: 0 auto; }
 
 h2 { text-align: center; font-size: 28px; margin-bottom: 14px; }
 h3 { font-size: 22px; margin-bottom: 8px; }
@@ -36,13 +33,14 @@ h3 { font-size: 22px; margin-bottom: 8px; }
 #dateText, #currentUserText { font-size: 20px; line-height: 2; }
 
 .score-board { text-align: center; font-size: 22px; font-weight: bold; transition: all 0.3s ease; }
+
 @keyframes scoreJump { 0% { transform: scale(1); } 30% { transform: scale(1.15); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
 
 .task-grid { display: flex; flex-direction: column; gap: 10px; }
 .task-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
 .task-button {
-  font-size: 16px; /* 缩小字体 */
-  padding: 12px; /* 缩小按钮高度 */
+  font-size: 16px;
+  padding: 12px;
   background: linear-gradient(135deg, #c2e0ff, #e0f0ff);
   color: #004080;
   box-shadow: 0 3px 12px rgba(0,0,0,0.1);
@@ -68,7 +66,7 @@ input { padding: 10px; font-size: 16px; width: 100%; margin: 8px 0; display: blo
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
-  font-size: 18px; /* 记录字体更小 */
+  font-size: 18px;
   background: #f9f9f9;
   border-radius: 12px;
   padding: 10px 14px;
@@ -77,20 +75,26 @@ input { padding: 10px; font-size: 16px; width: 100%; margin: 8px 0; display: blo
 }
 .record-item:nth-child(even) { background: #f0f0f0; }
 .record-item button {
-  background: #ff6b6b; color: white; padding: 6px 10px; border-radius: 12px; font-size: 14px; /* 修改和删除按钮更小 */
+  background: #ff6b6b; color: white; padding: 6px 10px; border-radius: 12px; font-size: 14px;
 }
-.record-item button:hover { transform: scale(1.1); }
 
 ul { padding-left: 16px; font-size: 18px; }
 
-@keyframes popupFade {
-  0% { opacity: 0; transform: translateY(-20px); }
-  50% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-20px); }
+/* ====== 手机端自适应 ====== */
+@media (max-width: 480px) {
+  html { font-size: 14px; } /* 手机整体缩小 */
+  h2 { font-size: 24px; }
+  h3 { font-size: 20px; }
+  #dateText, #currentUserText { font-size: 16px; line-height: 2; }
+  .score-board { font-size: 18px; }
+  .task-button { font-size: 14px; padding: 10px; }
+  button { font-size: 14px; padding: 8px 10px; }
+  input { font-size: 14px; padding: 8px; }
+  .record-item { font-size: 16px; padding: 8px 12px; }
+  .record-item button { font-size: 12px; padding: 4px 8px; }
 }
 </style>
 </head>
-
 <body>
 <div class="container">
 <h2>家务积分🧹</h2>
